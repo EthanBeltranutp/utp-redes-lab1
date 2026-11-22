@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lab 1 · Subnetting IPv4 y VLAN | Ethan Beltrán</title>
+<style>
+  :root { --bg:#0d1117; --panel:#161b22; --line:#30363d; --text:#e6edf3; --muted:#8b949e; --accent:#3fb950; --link:#58a6ff; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background:var(--bg); color:var(--text); line-height:1.6; }
+  header { padding:48px 20px 32px; text-align:center; border-bottom:1px solid var(--line); }
+  header .tag { display:inline-block; font-size:13px; color:var(--accent); border:1px solid var(--accent); border-radius:20px; padding:2px 12px; margin-bottom:12px; }
+  h1 { margin:0 0 8px; font-size:2rem; }
+  header p { color:var(--muted); margin:0; }
+  main { max-width:900px; margin:0 auto; padding:24px 20px 60px; }
+  section { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:20px 24px; margin:20px 0; }
+  h2 { margin-top:0; font-size:1.25rem; color:var(--accent); }
+  table { width:100%; border-collapse:collapse; font-size:14px; }
+  th, td { border:1px solid var(--line); padding:8px 10px; text-align:left; }
+  th { background:#21262d; }
+  pre { background:#010409; border:1px solid var(--line); border-radius:8px; padding:14px; overflow-x:auto; font-size:13px; }
+  code { font-family: ui-monospace, Consolas, monospace; }
+  a { color:var(--link); }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px; }
+  footer { text-align:center; color:var(--muted); font-size:14px; padding:24px; border-top:1px solid var(--line); }
+</style>
+</head>
+<body>
+<header>
+  <span class="tag">UTP · FISC · Ciberseguridad</span>
+  <h1>🌐 Subnetting IPv4 y segmentación con VLAN</h1>
+  <p>Laboratorio 1 · Ethan Beltrán · 2026</p>
+</header>
+<main>
+  <section>
+    <h2>🎯 Propósito</h2>
+    <p>Dividir la red <code>192.168.10.0/24</code> en cuatro subredes y aislar cada departamento en su propia VLAN. La segmentación limita el alcance de un incidente y permite aplicar controles de seguridad por área.</p>
+  </section>
+
+  <section>
+    <h2>🗺️ Topología (router-on-a-stick)</h2>
+<pre>                 [ R1 - Router 2911 ]
+                        | G0/0  (subinterfaces .10 .20 .30 .40)
+                        | enlace troncal 802.1Q
+                        | G0/1
+                 [ SW1 - Switch 2960 ]
+       Fa0/1-5     Fa0/6-10     Fa0/11-15     Fa0/16-20
+      VLAN 10      VLAN 20       VLAN 30       VLAN 40
+   Administración   Ventas         TI         Invitados</pre>
+  </section>
+
+  <section>
+    <h2>🧮 Plan de direccionamiento</h2>
+    <p>4 subredes → 2 bits prestados → máscara <strong>/26 (255.255.255.192)</strong>, 62 hosts útiles por subred.</p>
+    <table>
+      <tr><th>VLAN</th><th>Red</th><th>Rango de hosts</th><th>Broadcast</th><th>Gateway</th></tr>
+      <tr><td>10 Administración</td><td>192.168.10.0/26</td><td>.1 – .62</td><td>.63</td><td>192.168.10.1</td></tr>
+      <tr><td>20 Ventas</td><td>192.168.10.64/26</td><td>.65 – .126</td><td>.127</td><td>192.168.10.65</td></tr>
+      <tr><td>30 TI</td><td>192.168.10.128/26</td><td>.129 – .190</td><td>.191</td><td>192.168.10.129</td></tr>
+      <tr><td>40 Invitados</td><td>192.168.10.192/26</td><td>.193 – .254</td><td>.255</td><td>192.168.10.193</td></tr>
+    </table>
+  </section>
+
+  <section>
+    <h2>⚙️ Configuración</h2>
+    <div class="grid">
+      <div>
+        <strong>Switch SW1</strong>
+<pre>vlan 10
+ name ADMINISTRACION
+vlan 20
+ name VENTAS
+vlan 30
+ name TI
+vlan 40
+ name INVITADOS
+interface range fa0/1-5
+ switchport mode access
+ switchport access vlan 10
+! (igual para 20, 30 y 40)
+interface g0/1
+ switchport mode trunk</pre>
+      </div>
+      <div>
+        <strong>Router R1</strong>
+<pre>interface g0/0
+ no shutdown
+interface g0/0.10
+ encapsulation dot1Q 10
+ ip address 192.168.10.1 255.255.255.192
+interface g0/0.20
+ encapsulation dot1Q 20
+ ip address 192.168.10.65 255.255.255.192
+interface g0/0.30
+ encapsulation dot1Q 30
+ ip address 192.168.10.129 255.255.255.192
+interface g0/0.40
+ encapsulation dot1Q 40
+ ip address 192.168.10.193 255.255.255.192</pre>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>✅ Verificación</h2>
+    <table>
+      <tr><th>Prueba</th><th>Comando</th><th>Resultado esperado</th></tr>
+      <tr><td>VLAN creadas</td><td><code>show vlan brief</code></td><td>VLAN 10–40 con sus puertos</td></tr>
+      <tr><td>Troncal</td><td><code>show interfaces trunk</code></td><td>G0/1 en modo trunk</td></tr>
+      <tr><td>Subinterfaces</td><td><code>show ip interface brief</code></td><td>G0/0.10–.40 up/up</td></tr>
+      <tr><td>Entre VLAN</td><td><code>ping 192.168.10.140</code> (desde PC-ADM)</td><td>Respuesta exitosa</td></tr>
+    </table>
+  </section>
+
+  <section>
+    <h2>🔐 Reflexión de seguridad</h2>
+    <ul>
+      <li>Un equipo comprometido en <em>Invitados</em> no ve el tráfico de capa 2 de <em>Administración</em>.</li>
+      <li>Mejora futura: una ACL en <code>g0/0.40</code> para que Invitados no alcance las demás VLAN.</li>
+      <li>Apagar los puertos del switch que no se usan.</li>
+    </ul>
+  </section>
+</main>
+<footer>
+  <a href="https://github.com/EthanBeltranutp">GitHub</a> ·
+  <a href="https://github.com/EthanBeltranutp/utp-redes-lab1">Repositorio</a> ·
+  <a href="https://www.linkedin.com/in/EthanBeltranutp">LinkedIn</a><br>
+  Universidad Tecnológica de Panamá · Sistemas Colaborativos · Licencia MIT
+</footer>
+</body>
+</html>

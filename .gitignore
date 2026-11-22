@@ -1,0 +1,21 @@
+# Sistema operativo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editores
+.vscode/
+.idea/
+*.swp
+*~
+
+# Respaldos y temporales de Packet Tracer
+*.bak
+*.tmp
+*.pkt.bak
+
+# Registros y archivos sensibles
+*.log
+.env
+credenciales*
+*.key
