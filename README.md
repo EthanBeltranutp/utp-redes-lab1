@@ -1,8 +1,8 @@
-# 🌐 utp-redes-lab1 — Subnetting IPv4 y segmentación con VLAN
+# utp-redes-lab1 — Subnetting IPv4 y segmentación con VLAN
 
-![Estado](https://img.shields.io/badge/estado-completado-2ea043)
-![Herramienta](https://img.shields.io/badge/Cisco-Packet%20Tracer-1BA0D7?logo=cisco&logoColor=white)
-![Licencia](https://img.shields.io/badge/licencia-MIT-blue)
+!Estado
+!Herramienta
+!Licencia
 
 Laboratorio académico de la Licenciatura en Ciberseguridad — **Universidad Tecnológica de Panamá (UTP), FISC**.
 Autor: **Ethan Beltrán** · 2026
