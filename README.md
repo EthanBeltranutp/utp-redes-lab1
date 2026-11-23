@@ -7,15 +7,15 @@
 Laboratorio académico de la Licenciatura en Ciberseguridad — **Universidad Tecnológica de Panamá (UTP), FISC**.
 Autor: **Ethan Beltrán** · 2026
 
-🌍 **Documentación publicada en GitHub Pages:** https://EthanBeltranutp.github.io/utp-redes-lab1/
+**Documentación publicada en GitHub Pages:** https://EthanBeltranutp.github.io/utp-redes-lab1/
 
 ---
 
-## 🎯 Propósito
+## Propósito
 
 Diseñar el direccionamiento IPv4 de una pequeña oficina dividiendo una red `/24` en cuatro subredes, y aislar cada departamento en su propia VLAN. Separar la red en segmentos es una medida básica de seguridad: limita el alcance de un incidente y permite aplicar controles por área.
 
-## 🧭 Escenario
+## Escenario
 
 Una oficina necesita cuatro segmentos independientes:
 
@@ -28,7 +28,7 @@ Una oficina necesita cuatro segmentos independientes:
 
 Red asignada: **192.168.10.0/24**
 
-## 🗺️ Topología
+## Topología
 
 ```
                  [ R1 - Router 2911 ]
@@ -44,7 +44,7 @@ Red asignada: **192.168.10.0/24**
 
 Diseño *router-on-a-stick*: un solo enlace troncal transporta las cuatro VLAN y el router hace el enrutamiento entre ellas.
 
-## 🧮 Cálculo de subredes
+## Cálculo de subredes
 
 Se necesitan 4 subredes → se toman **2 bits** prestados (2² = 4).
 Nueva máscara: **/26 = 255.255.255.192** · Bloque de 64 direcciones · **62 hosts útiles** por subred (2⁶ − 2).
@@ -56,7 +56,7 @@ Nueva máscara: **/26 = 255.255.255.192** · Bloque de 64 direcciones · **62 ho
 | 3      | 30   | 192.168.10.128/26 | 192.168.10.129 – 192.168.10.190 | 192.168.10.191  | 192.168.10.129 |
 | 4      | 40   | 192.168.10.192/26 | 192.168.10.193 – 192.168.10.254 | 192.168.10.255  | 192.168.10.193 |
 
-## ⚙️ Procedimiento
+## Procedimiento
 
 ### 1. Switch SW1 — VLAN y puertos
 
@@ -124,7 +124,7 @@ write memory
 | PC-TI  | 192.168.10.140  | 255.255.255.192   | 192.168.10.129 |
 | PC-INV | 192.168.10.200  | 255.255.255.192   | 192.168.10.193 |
 
-## ✅ Verificación
+## Verificación
 
 | Prueba | Comando | Resultado esperado |
 |--------|---------|--------------------|
@@ -134,13 +134,13 @@ write memory
 | Conectividad | `ping 192.168.10.1` desde PC-ADM | Respuesta exitosa |
 | Enrutamiento entre VLAN | `ping 192.168.10.140` desde PC-ADM | Respuesta exitosa |
 
-## 🔐 Reflexión de seguridad
+## Reflexión de seguridad
 
 - La segmentación evita que un equipo comprometido en *Invitados* vea directamente el tráfico de *Administración* en capa 2.
 - Como mejora futura se puede aplicar una **ACL** en `g0/0.40` para que Invitados solo salga a Internet y no alcance las demás VLAN.
 - Los puertos no usados del switch deberían apagarse (`shutdown`) y asignarse a una VLAN sin uso.
 
-## 📂 Estructura del repositorio
+## Estructura del repositorio
 
 ```
 utp-redes-lab1/
